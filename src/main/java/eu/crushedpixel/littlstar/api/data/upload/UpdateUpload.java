@@ -4,6 +4,7 @@ import eu.crushedpixel.littlstar.api.data.ApiSend;
 import eu.crushedpixel.littlstar.api.data.resource.ResourceVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /*
  * Copyright 2015 Marius Metzger - http://crushedpixel.eu
@@ -25,6 +26,7 @@ public class UpdateUpload {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class UpdateUploadSend implements ApiSend {
         private String title;
         private String description;
