@@ -33,7 +33,7 @@ public enum MimeType {
     AVI,
     @SerializedName("video/ogg")
     OGG,
-    @SerializedName("video/mov")
+    @SerializedName("video/quicktime")
     MOV,
     @SerializedName("video/webm")
     WEBM,
