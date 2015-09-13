@@ -3,9 +3,16 @@ package eu.crushedpixel.littlstar.api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import eu.crushedpixel.littlstar.api.data.EmptyData;
 import eu.crushedpixel.littlstar.api.data.Login;
+import eu.crushedpixel.littlstar.api.data.Register;
+import eu.crushedpixel.littlstar.api.data.StringPair;
 import eu.crushedpixel.littlstar.api.data.receive.Errors;
 import eu.crushedpixel.littlstar.api.data.receive.ResponseWrapper;
+import eu.crushedpixel.littlstar.api.data.upload.CreateUpload;
+import eu.crushedpixel.littlstar.api.data.upload.MimeType;
+import eu.crushedpixel.littlstar.api.data.upload.UpdateUpload;
+import eu.crushedpixel.littlstar.api.data.upload.UploadData;
 import eu.crushedpixel.littlstar.api.gson.ErrorsDeserializer;
 import eu.crushedpixel.littlstar.api.gson.ResponseWrapperTypeAdapter;
 import eu.crushedpixel.littlstar.api.gson.RubyDateDeserializer;
@@ -109,32 +116,140 @@ public class LittlstarApiClient {
     }
 
     /**
-     * Logs in the LittlstarApiClient to allow it to execute API calls on a user's behalf
-     * @param login The user's E-Mail address or Username
-     * @param password The user's password
-     * @return Whether or not the login was successful
+     * Registers a new user on Littlstar,
+     * setting this LittlstarApiClient's apikey to the user's apikey if successful
+     * @param username The desired username
+     * @param email The E-Mail address connected to the account
+     * @param password The account password
+     * @return The API's response, containing information about the user
      * @throws UnirestException If the http connection fails
      * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
-    public boolean login(String login, String password) throws UnirestException, LittlstarApiException {
+    public ResponseWrapper<Login.LoginResponse> register(String username, String email, String password)
+            throws UnirestException, LittlstarApiException {
+        Register.RegisterSend registerSend = new Register.RegisterSend(username, email, password);
+
+        ResponseWrapper<Login.LoginResponse> responseWrapper =
+                ApiCall.REGISTER.execute(this, registerSend);
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
+
+        if(responseWrapper.getData() != null) {
+            this.apiKey = responseWrapper.getData().getApikey();
+        }
+
+        return responseWrapper;
+    }
+
+    /**
+     * Executes a login call to the Littlstar API,
+     * setting this LittlstarApiClient's apikey to the user's apikey if successful
+     * @param login The user's E-Mail address or Username
+     * @param password The user's password
+     * @return The API's response, containing information about the user
+     * @throws UnirestException If the http connection fails
+     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     */
+    public ResponseWrapper<Login.LoginResponse> login(String login, String password)
+            throws UnirestException, LittlstarApiException {
         Login.LoginSend loginSend = new Login.LoginSend(login, password);
 
-        ResponseWrapper<Login.LoginResponse> responseWrapper = ApiCall.LOGIN.execute(this, loginSend);
-        if(!RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions)) return false;
+        ResponseWrapper<Login.LoginResponse> responseWrapper =
+                ApiCall.LOGIN.execute(this, loginSend);
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
 
-        this.apiKey = responseWrapper.getData().getApikey();
-        return true;
+        if(responseWrapper.getData() != null) {
+            this.apiKey = responseWrapper.getData().getApikey();
+        }
+
+        return responseWrapper;
     }
 
     /**
      * Removes the LittlstarApiClient's current Apikey.<br>
      * Until another Apikey is set, API calls that require user authentication are not possible.
-     * @return Whether or not the logout was successful (always <code>true</code>)
      */
-    public boolean logout() {
+    public void logout() {
         this.apiKey = null;
-        return true;
     }
 
-    //TODO: Wrap the other API calls into user-friendly methods similar to login()
+    /**
+     * Requests to start a File Upload to Littlstar.<br>
+     * This API call requires the LittlstarApiClient to be authenticated with a user.
+     * @param mimeType The File's Mime Type
+     * @param fileName The File's name
+     * @return The API's response, containing information about the file that is being uploaded
+     *         as well as the S3 Bucket access data to upload the file to
+     * @throws UnirestException If the http connection fails
+     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     */
+    public ResponseWrapper<CreateUpload.CreateUploadResponse> createFileUpload(MimeType mimeType, String fileName)
+            throws UnirestException, LittlstarApiException {
+        CreateUpload.CreateUploadSend createUploadSend = new CreateUpload.CreateUploadSend(fileName, mimeType);
+
+        ResponseWrapper<CreateUpload.CreateUploadResponse> responseWrapper =
+                ApiCall.CREATE_UPLOAD.execute(this, createUploadSend);
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
+
+        return responseWrapper;
+    }
+
+    /**
+     * Updates a currently pending Upload's File information.<br>
+     * The updates are incremental, which means not all values of updateData have to be set.<br>
+     * This API call requires the LittlstarApiClient to be authenticated with a user.
+     * @param uploadID The File Upload's ID
+     * @param updateData The File information to update. Only the values that are set will be updated.
+     * @return The API's response, containing information about the file that is being uploaded
+     * @throws UnirestException If the http connection fails
+     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     */
+    public ResponseWrapper<UploadData> updateFileUpload(int uploadID, UpdateUpload.UpdateUploadSend updateData)
+            throws UnirestException, LittlstarApiException {
+
+        ResponseWrapper<UploadData> responseWrapper =
+                ApiCall.UPDATE_UPLOAD.execute(this, updateData, new StringPair("id", String.valueOf(uploadID)));
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
+
+        return responseWrapper;
+    }
+
+    /**
+     * Cancels a currently pending File Upload.<br>
+     * This API call requires the LittlstarApiClient to be authenticated with a user.
+     * @param uploadID The ID of the File Upload to be canceled
+     * @return The API's response, containing only the meta object
+     * @throws UnirestException If the http connection fails
+     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     */
+    public ResponseWrapper<EmptyData> cancelFileUpload(int uploadID)
+            throws UnirestException, LittlstarApiException {
+
+        ResponseWrapper<EmptyData> responseWrapper =
+                ApiCall.CANCEL_UPLOAD.execute(this, new EmptyData(), new StringPair("id", String.valueOf(uploadID)));
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
+
+        return responseWrapper;
+    }
+
+    /**
+     * Marks a currently pending File Upload as finished.<br>
+     * This method has to be called after the upload to the S3 Bucket,
+     * which was retreived with the createUpload call has been finished.<br>
+     * After executing this call, the File Upload will be removed from the Littlstar API.<br>
+     * From now on, the File is accessible by the Slug contained in the returned UploadData object.<br>
+     * This API call requires the LittlstarApiClient to be authenticated with a user.
+     * @param uploadID The ID of the File Upload to be marked as finished
+     * @return The API's response, containing information about the uploaded file
+     * @throws UnirestException If the http connection fails
+     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     */
+    public ResponseWrapper<UploadData> completeFileUpload(int uploadID)
+            throws UnirestException, LittlstarApiException {
+
+        ResponseWrapper<UploadData> responseWrapper =
+                ApiCall.COMPLETE_UPLOAD.execute(this, new EmptyData(), new StringPair("id", String.valueOf(uploadID)));
+        RESPONSE_VALIDATOR.validateResponse(responseWrapper, throwApiExceptions);
+
+        return responseWrapper;
+    }
 }
