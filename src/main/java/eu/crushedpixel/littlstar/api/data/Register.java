@@ -23,7 +23,7 @@ public class Register {
 
     @Data
     @AllArgsConstructor
-    public class LoginSend implements ApiSend {
+    public static class RegisterSend implements ApiSend {
 
         private String username;
         private String email;

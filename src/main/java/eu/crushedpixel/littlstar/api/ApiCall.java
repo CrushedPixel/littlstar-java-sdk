@@ -32,8 +32,8 @@ import java.util.Set;
 @Data
 public class ApiCall<SEND extends ApiSend, RECEIVE> {
 
-    public static final ApiCall<Register.LoginSend, Login.LoginResponse> REGISTER
-            = new ApiCall<Register.LoginSend, Login.LoginResponse>(HttpMethod.POST, "/api/v1/register", Login.LoginResponse.class, false);
+    public static final ApiCall<Register.RegisterSend, Login.LoginResponse> REGISTER
+            = new ApiCall<Register.RegisterSend, Login.LoginResponse>(HttpMethod.POST, "/api/v1/register", Login.LoginResponse.class, false);
 
     public static final ApiCall<Login.LoginSend, Login.LoginResponse> LOGIN
             = new ApiCall<Login.LoginSend, Login.LoginResponse>(HttpMethod.POST, "/api/v1/login", Login.LoginResponse.class, false);
@@ -49,9 +49,9 @@ public class ApiCall<SEND extends ApiSend, RECEIVE> {
             = new ApiCall<EmptyData, EmptyData>(HttpMethod.DELETE, "/api/private/uploads/{id}", EmptyData.class, true)
             .addRequiredRouteParam("id");
 
-    public static final ApiCall<EmptyData, EmptyData> COMPLETE_UPLOAD
-            = new ApiCall<EmptyData, EmptyData>(HttpMethod.POST, "/api/private/uploads/{id}/complete", EmptyData.class, true)
-            .addRequiredRouteParam("id"); //TODO: Engineer COMPLETE_UPLOAD return structure
+    public static final ApiCall<EmptyData, UploadData> COMPLETE_UPLOAD
+            = new ApiCall<EmptyData, UploadData>(HttpMethod.POST, "/api/private/uploads/{id}/complete", UploadData.class, true)
+            .addRequiredRouteParam("id");
 
     private final HttpMethod httpMethod;
     private final String apiCall;

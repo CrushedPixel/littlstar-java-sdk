@@ -25,7 +25,7 @@ public class CreateUpload {
 
     @Data
     @AllArgsConstructor
-    public class CreateUploadSend implements ApiSend {
+    public static class CreateUploadSend implements ApiSend {
         private String file_name;
         private MimeType mime_type;
 
@@ -37,7 +37,7 @@ public class CreateUpload {
 
     @Data
     @EqualsAndHashCode(callSuper = true)
-    public class CreateUploadResponse extends UploadData {
+    public static class CreateUploadResponse extends UploadData {
         private String s3_bucket;
         private String s3_key;
         private String s3_policy;

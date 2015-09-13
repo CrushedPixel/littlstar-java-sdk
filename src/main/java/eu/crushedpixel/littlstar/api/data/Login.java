@@ -42,7 +42,7 @@ public class Login {
     @Data
     @AllArgsConstructor
     @EqualsAndHashCode(callSuper = true)
-    public class LoginResponse extends User {
+    public static class LoginResponse extends User {
         private String apikey;
         private String referral_code;
         private String email;

@@ -25,7 +25,7 @@ public class UpdateUpload {
 
     @Data
     @AllArgsConstructor
-    public class UpdateUploadSend implements ApiSend {
+    public static class UpdateUploadSend implements ApiSend {
         private String title;
         private String description;
         private ResourceVisibility visibility;
