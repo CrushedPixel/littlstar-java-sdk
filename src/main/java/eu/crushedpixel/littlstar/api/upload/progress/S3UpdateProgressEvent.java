@@ -1,5 +1,8 @@
 package eu.crushedpixel.littlstar.api.upload.progress;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 /*
  * Copyright 2015 Marius Metzger - http://crushedpixel.eu
  *
@@ -16,13 +19,12 @@ package eu.crushedpixel.littlstar.api.upload.progress;
  * under the License.
  */
 
-public interface UploadProgressListener {
+@Data
+@AllArgsConstructor
+public class S3UpdateProgressEvent {
 
-    /**
-     * This method is called by an {@link org.apache.http.HttpRequest}
-     * using a {@link eu.crushedpixel.littlstar.api.upload.CountingFileBody} element
-     * @param progressUpdateEvent The ProgressUpdateEvent, containing information about the upload's progress
-     */
-    void onProgressUpdated(ProgressUpdateEvent progressUpdateEvent);
+    private long transferredBytes;
+    private long totalBytes;
+    private float progressFloat;
 
 }

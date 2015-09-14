@@ -1,8 +1,5 @@
 package eu.crushedpixel.littlstar.api.upload.progress;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 /*
  * Copyright 2015 Marius Metzger - http://crushedpixel.eu
  *
@@ -19,11 +16,12 @@ import lombok.Data;
  * under the License.
  */
 
-@Data
-@AllArgsConstructor
-public class ProgressUpdateEvent {
+public interface S3UploadProgressListener {
 
-    private long transferredBytes;
-    private long totalBytes;
+    /**
+     * This method is called by the S3Uploader whenever bytes of the file to upload were transferred to the S3 Bucket.
+     * @param s3UpdateProgressEvent The S3UpdateProgressEvent, containing information about the upload's progress
+     */
+    void onProgressUpdated(S3UpdateProgressEvent s3UpdateProgressEvent);
 
 }

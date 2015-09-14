@@ -17,7 +17,8 @@ import eu.crushedpixel.littlstar.api.gson.ErrorsDeserializer;
 import eu.crushedpixel.littlstar.api.gson.ResponseWrapperTypeAdapter;
 import eu.crushedpixel.littlstar.api.gson.RubyDateDeserializer;
 import eu.crushedpixel.littlstar.api.upload.S3Uploader;
-import eu.crushedpixel.littlstar.api.upload.progress.UploadProgressListener;
+import eu.crushedpixel.littlstar.api.upload.S3UploadCancelHook;
+import eu.crushedpixel.littlstar.api.upload.progress.S3UploadProgressListener;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.http.client.ClientProtocolException;
@@ -220,8 +221,10 @@ public class LittlstarApiClient {
      * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param fileToUpload The File to upload
      * @param createUploadResponse The response of the createFileUpload() call
-     * @param uploadProgressListener An UploadProgressListener which is called whenever
+     * @param s3UploadProgressListener An S3UploadProgressListener which is called whenever
      *                               bytes are written to the outgoing connection. May be null.
+     * @param s3UploadCancelHook An S3UploadCancel hook which is applied to the created underlying {@link S3Uploader},
+     *                           allowing to cancel a running upload. May be null.
      * @return The API's response, containing information about the file that was uploaded
      * @throws IOException in case of a problem or the connection was aborted while interacting with S3
      * @throws ClientProtocolException in case of an http protocol error while interacting with S3
@@ -230,11 +233,14 @@ public class LittlstarApiClient {
      * and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<UploadData> uploadFileToS3(File fileToUpload, CreateUpload.CreateUploadResponse createUploadResponse,
-                               UploadProgressListener uploadProgressListener)
+                               S3UploadProgressListener s3UploadProgressListener, S3UploadCancelHook s3UploadCancelHook)
             throws IOException, ClientProtocolException, UnirestException, LittlstarApiException {
 
         S3Uploader s3Uploader = new S3Uploader(fileToUpload, createUploadResponse);
-        s3Uploader.uploadFileToS3(uploadProgressListener);
+
+        s3UploadCancelHook.initialize(this, s3Uploader, createUploadResponse);
+
+        s3Uploader.uploadFileToS3(s3UploadProgressListener);
 
         return completeFileUpload(createUploadResponse.getId());
     }
