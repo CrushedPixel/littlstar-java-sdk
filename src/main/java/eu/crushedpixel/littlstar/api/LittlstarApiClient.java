@@ -19,7 +19,6 @@ import eu.crushedpixel.littlstar.api.gson.RubyDateDeserializer;
 import eu.crushedpixel.littlstar.api.upload.S3Uploader;
 import eu.crushedpixel.littlstar.api.upload.progress.UploadProgressListener;
 import lombok.Getter;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 
 import java.io.File;
@@ -207,21 +206,21 @@ public class LittlstarApiClient {
      * @param createUploadResponse The response of the createFileUpload() call
      * @param uploadProgressListener An UploadProgressListener which is called whenever
      *                               bytes are written to the outgoing connection. May be null.
-     * @return the response of the HTTP request to the S3 Bucket
+     * @return The API's response, containing information about the file that was uploaded
      * @throws IOException in case of a problem or the connection was aborted while interacting with S3
      * @throws ClientProtocolException in case of an http protocol error while interacting with S3
      * @throws UnirestException If the http connection fails while interacting with the Littlstar API
      * @throws LittlstarApiException If the Littlstar API returns an error code
      * and <b>setThrowApiExceptions</b> is set to true
      */
-    public HttpResponse uploadFileToS3(File fileToUpload, CreateUpload.CreateUploadResponse createUploadResponse,
+    public ResponseWrapper<UploadData> uploadFileToS3(File fileToUpload, CreateUpload.CreateUploadResponse createUploadResponse,
                                UploadProgressListener uploadProgressListener)
             throws IOException, ClientProtocolException, UnirestException, LittlstarApiException {
 
         S3Uploader s3Uploader = new S3Uploader(fileToUpload, createUploadResponse);
         s3Uploader.uploadFileToS3(uploadProgressListener);
 
-        completeFileUpload(createUploadResponse.getId());
+        return completeFileUpload(createUploadResponse.getId());
     }
 
     /**
