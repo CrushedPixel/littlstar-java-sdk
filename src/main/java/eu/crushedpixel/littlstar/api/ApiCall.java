@@ -3,6 +3,7 @@ package eu.crushedpixel.littlstar.api;
 import com.mashape.unirest.http.HttpMethod;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.HttpRequestWithBody;
+import com.mashape.unirest.request.body.RequestBodyEntity;
 import eu.crushedpixel.littlstar.api.data.*;
 import eu.crushedpixel.littlstar.api.data.receive.ResponseWrapper;
 import eu.crushedpixel.littlstar.api.data.upload.CreateUpload;
@@ -116,11 +117,19 @@ public class ApiCall<SEND extends ApiSend, RECEIVE> {
 
         SendWrapper<SEND> sendWrapper = new SendWrapper<SEND>(data);
 
-        //send the SendWrapper as JSON Payload
-        request.header("content-type", "application/json")
-                .body(sendWrapper.toJson());
+        //send the SendWrapper as JSON Payload, unless EmptyData is wrapped
+        if(sendWrapper.toJson() != null) {
+            request.header("content-type", "application/json")
+                    .body(sendWrapper.toJson());
+        } else {
+            //we need to put an empty body to execute the call
+            request.body("");
+        }
 
-        String json = request.asString().getBody();
+        String json = "";
+        if(request.getBody() instanceof RequestBodyEntity && ((RequestBodyEntity)request.getBody()).getBody() != null) {
+            json = request.asString().getBody();
+        }
 
         return LittlstarApiClient.getGson(responseClass).fromJson(json, ResponseWrapper.class);
     }
