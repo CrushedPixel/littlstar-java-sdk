@@ -34,7 +34,7 @@ public class LittlstarApiException extends Exception {
     @Override
     public String getMessage() {
         if(meta == null) {
-            return "Littlstar Api call encountered an unknown error";
+            return "Littlstar Api returned an invalid payload";
         }
 
         StringBuilder sb = new StringBuilder("Littlstar Api call returned response code ")
