@@ -107,8 +107,10 @@ public class ApiCall<SEND extends ApiSend, RECEIVE> {
             }
         }
 
-        //always include the Application Token in the header
-        request.header("X-AppToken", apiClient.getApplicationToken());
+        //always include the Application Token in the header if it's set
+        if(apiClient.getApplicationToken() != null) {
+            request.header("X-AppToken", apiClient.getApplicationToken());
+        }
 
         //if required, include the authenticated user's Apikey in the header
         if(requiresAuthentication) {

@@ -19,6 +19,7 @@ import eu.crushedpixel.littlstar.api.gson.RubyDateDeserializer;
 import eu.crushedpixel.littlstar.api.upload.S3Uploader;
 import eu.crushedpixel.littlstar.api.upload.progress.UploadProgressListener;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.http.client.ClientProtocolException;
 
 import java.io.File;
@@ -45,6 +46,7 @@ import java.util.Date;
  * An interface to interact with the Littlstar Web API.<br>
  * All API calls can and should only be made using an instance of LittlstarApiClient.
  */
+@NoArgsConstructor
 public class LittlstarApiClient {
 
     private static final String LIVE_TLD = "https://littlstar.com";
@@ -67,10 +69,10 @@ public class LittlstarApiClient {
     private static final ResponseValidator RESPONSE_VALIDATOR = new ResponseValidator();
 
     /**
-     * The Application Token which is required to make any API call
+     * The Application Token which is required to make Upload API calls
      */
     @Getter
-    private final String applicationToken;
+    private String applicationToken;
 
     private String apiKey;
 
@@ -90,8 +92,19 @@ public class LittlstarApiClient {
     }
 
     /**
+     * Sets the Application Token to use when making File Uploads to Littlstar
+     * @param applicationToken the Application Token to use
+     * @return this object's reference so the call can be chained
+     */
+    public LittlstarApiClient setApplicationToken(String applicationToken) {
+        this.applicationToken = applicationToken;
+        return this;
+    }
+
+    /**
      * Manually set the Apikey to be used to identify a user when making API calls
      * @param apiKey The Apikey to use
+     * @return this object's reference so the call can be chained
      */
     public LittlstarApiClient setUserApiKey(String apiKey) {
         this.apiKey = apiKey;
@@ -179,6 +192,7 @@ public class LittlstarApiClient {
 
     /**
      * Requests to start a File Upload to Littlstar.<br>
+     * This API call requires the LittlstarApiClient to be verified with an Application Token.<br>
      * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param mimeType The File's Mime Type
      * @param fileName The File's name
@@ -201,7 +215,9 @@ public class LittlstarApiClient {
     /**
      * Uploads a File to the Amazon S3 Bucket specified in the
      * {@link eu.crushedpixel.littlstar.api.data.upload.CreateUpload.CreateUploadResponse}
-     * returned from the createFileUpload() call, and notificates the Littlstar Api about the finished upload.
+     * returned from the createFileUpload() call, and notificates the Littlstar Api about the finished upload.<br>
+     * This API call requires the LittlstarApiClient to be verified with an Application Token.<br>
+     * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param fileToUpload The File to upload
      * @param createUploadResponse The response of the createFileUpload() call
      * @param uploadProgressListener An UploadProgressListener which is called whenever
@@ -226,6 +242,7 @@ public class LittlstarApiClient {
     /**
      * Updates a currently pending Upload's File information.<br>
      * The updates are incremental, which means not all values of updateData have to be set.<br>
+     * This API call requires the LittlstarApiClient to be verified with an Application Token.<br>
      * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param uploadID The File Upload's ID
      * @param updateData The File information to update. Only the values that are set will be updated.
@@ -245,6 +262,7 @@ public class LittlstarApiClient {
 
     /**
      * Cancels a currently pending File Upload.<br>
+     * This API call requires the LittlstarApiClient to be verified with an Application Token.<br>
      * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param uploadID The ID of the File Upload to be canceled
      * @return The API's response, containing only the meta object
@@ -267,6 +285,7 @@ public class LittlstarApiClient {
      * which was retreived with the createUpload call has been finished.<br>
      * After executing this call, the File Upload will be removed from the Littlstar API.<br>
      * From now on, the File is accessible by the Slug contained in the returned UploadData object.<br>
+     * This API call requires the LittlstarApiClient to be verified with an Application Token.<br>
      * This API call requires the LittlstarApiClient to be authenticated with a user.
      * @param uploadID The ID of the File Upload to be marked as finished
      * @return The API's response, containing information about the uploaded file
