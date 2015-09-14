@@ -16,8 +16,14 @@ import eu.crushedpixel.littlstar.api.data.upload.UploadData;
 import eu.crushedpixel.littlstar.api.gson.ErrorsDeserializer;
 import eu.crushedpixel.littlstar.api.gson.ResponseWrapperTypeAdapter;
 import eu.crushedpixel.littlstar.api.gson.RubyDateDeserializer;
+import eu.crushedpixel.littlstar.api.upload.S3Uploader;
+import eu.crushedpixel.littlstar.api.upload.progress.UploadProgressListener;
 import lombok.Getter;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 /*
@@ -123,7 +129,7 @@ public class LittlstarApiClient {
      * @param password The account password
      * @return The API's response, containing information about the user
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<Login.LoginResponse> register(String username, String email, String password)
             throws UnirestException, LittlstarApiException {
@@ -147,7 +153,7 @@ public class LittlstarApiClient {
      * @param password The user's password
      * @return The API's response, containing information about the user
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<Login.LoginResponse> login(String login, String password)
             throws UnirestException, LittlstarApiException {
@@ -180,7 +186,7 @@ public class LittlstarApiClient {
      * @return The API's response, containing information about the file that is being uploaded
      *         as well as the S3 Bucket access data to upload the file to
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<CreateUpload.CreateUploadResponse> createFileUpload(MimeType mimeType, String fileName)
             throws UnirestException, LittlstarApiException {
@@ -194,6 +200,31 @@ public class LittlstarApiClient {
     }
 
     /**
+     * Uploads a File to the Amazon S3 Bucket specified in the
+     * {@link eu.crushedpixel.littlstar.api.data.upload.CreateUpload.CreateUploadResponse}
+     * returned from the createFileUpload() call, and notificates the Littlstar Api about the finished upload.
+     * @param fileToUpload The File to upload
+     * @param createUploadResponse The response of the createFileUpload() call
+     * @param uploadProgressListener An UploadProgressListener which is called whenever
+     *                               bytes are written to the outgoing connection. May be null.
+     * @return the response of the HTTP request to the S3 Bucket
+     * @throws IOException in case of a problem or the connection was aborted while interacting with S3
+     * @throws ClientProtocolException in case of an http protocol error while interacting with S3
+     * @throws UnirestException If the http connection fails while interacting with the Littlstar API
+     * @throws LittlstarApiException If the Littlstar API returns an error code
+     * and <b>setThrowApiExceptions</b> is set to true
+     */
+    public HttpResponse uploadFileToS3(File fileToUpload, CreateUpload.CreateUploadResponse createUploadResponse,
+                               UploadProgressListener uploadProgressListener)
+            throws IOException, ClientProtocolException, UnirestException, LittlstarApiException {
+
+        S3Uploader s3Uploader = new S3Uploader(fileToUpload, createUploadResponse);
+        s3Uploader.uploadFileToS3(uploadProgressListener);
+
+        completeFileUpload(createUploadResponse.getId());
+    }
+
+    /**
      * Updates a currently pending Upload's File information.<br>
      * The updates are incremental, which means not all values of updateData have to be set.<br>
      * This API call requires the LittlstarApiClient to be authenticated with a user.
@@ -201,7 +232,7 @@ public class LittlstarApiClient {
      * @param updateData The File information to update. Only the values that are set will be updated.
      * @return The API's response, containing information about the file that is being uploaded
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<UploadData> updateFileUpload(int uploadID, UpdateUpload.UpdateUploadSend updateData)
             throws UnirestException, LittlstarApiException {
@@ -219,7 +250,7 @@ public class LittlstarApiClient {
      * @param uploadID The ID of the File Upload to be canceled
      * @return The API's response, containing only the meta object
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<EmptyData> cancelFileUpload(int uploadID)
             throws UnirestException, LittlstarApiException {
@@ -241,7 +272,7 @@ public class LittlstarApiClient {
      * @param uploadID The ID of the File Upload to be marked as finished
      * @return The API's response, containing information about the uploaded file
      * @throws UnirestException If the http connection fails
-     * @throws LittlstarApiException If the Api returns an error code and <b>setThrowApiExceptions</b> is set to true
+     * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
     public ResponseWrapper<UploadData> completeFileUpload(int uploadID)
             throws UnirestException, LittlstarApiException {

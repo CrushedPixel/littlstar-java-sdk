@@ -20,6 +20,9 @@ import lombok.NoArgsConstructor;
  * under the License.
  */
 
+/**
+ * An Exception that is thrown when the Littlstar API returns invalid data or an error code.
+ */
 @NoArgsConstructor
 public class LittlstarApiException extends Exception {
 
