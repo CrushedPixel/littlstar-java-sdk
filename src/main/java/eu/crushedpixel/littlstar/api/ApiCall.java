@@ -42,8 +42,8 @@ public class ApiCall<SEND extends ApiSend, RECEIVE> {
     public static final ApiCall<CreateUpload.CreateUploadSend, CreateUpload.CreateUploadResponse> CREATE_UPLOAD
             = new ApiCall<CreateUpload.CreateUploadSend, CreateUpload.CreateUploadResponse>(HttpMethod.POST, "/api/private/uploads", CreateUpload.CreateUploadResponse.class, true);
 
-    public static final ApiCall<UpdateUpload.UpdateUploadSend, UploadData> UPDATE_UPLOAD
-            = new ApiCall<UpdateUpload.UpdateUploadSend, UploadData>(HttpMethod.PUT, "/api/private/uploads/{id}", UploadData.class, true)
+    public static final ApiCall<UpdateUpload.UpdateUploadData, UploadData> UPDATE_UPLOAD
+            = new ApiCall<UpdateUpload.UpdateUploadData, UploadData>(HttpMethod.PUT, "/api/private/uploads/{id}", UploadData.class, true)
             .addRequiredRouteParam("id");
 
     public static final ApiCall<EmptyData, EmptyData> CANCEL_UPLOAD

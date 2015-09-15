@@ -256,7 +256,7 @@ public class LittlstarApiClient {
      * @throws UnirestException If the http connection fails
      * @throws LittlstarApiException If the API returns an error code and <b>setThrowApiExceptions</b> is set to true
      */
-    public ResponseWrapper<UploadData> updateFileUpload(int uploadID, UpdateUpload.UpdateUploadSend updateData)
+    public ResponseWrapper<UploadData> updateFileUpload(int uploadID, UpdateUpload.UpdateUploadData updateData)
             throws UnirestException, LittlstarApiException {
 
         ResponseWrapper<UploadData> responseWrapper =
