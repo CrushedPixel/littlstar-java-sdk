@@ -31,7 +31,7 @@ public class UpdateUpload {
         private String title;
         private String description;
         private ResourceVisibility visibility;
-        private boolean download;
+        private Boolean download;
         private int[] category_ids;
 
         @Override
