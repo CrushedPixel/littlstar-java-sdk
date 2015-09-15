@@ -17,7 +17,6 @@ The Littlstar Java SDK is written in and it's official binary releases are compi
 This project has the following dependencies:
 - [Unirest 1.4.7](http://unirest.io/java.html) and its dependencies
 - [Google Gson 2.2.4](https://github.com/google/gson)
-- [Apache Commons IO 2.4](https://commons.apache.org/proper/commons-io/)
 
 To compile this project, you will also need [Project Lombok 1.16.6](http://projectlombok.org).
 
@@ -41,9 +40,9 @@ If an API call fails because the API returns an error code or an invalid payload
 ---
 ### Uploading files
 #### Prerequisites
-Access to the Littlstar upload endpoints must be requested by an application developer and approved by the Littlstar development team. Upon approval, an Application Token is generated for that application and can be revoked by Littlstar if abuse of our platform is detected, or if an application developer’s Token is in any way compromised. Please read the [Littlstar API Terms of Service](http://developer.littlstar.com/terms/) for more information.
+Access to the Littlstar upload endpoints must be requested by an application developer and approved by the Littlstar development team. Upon approval, an Application Token is generated for that application and can be revoked by Littlstar if abuse of their platform is detected, or if an application developer’s Token is in any way compromised. Please read the [Littlstar API Terms of Service](http://developer.littlstar.com/terms/) for more information.
 
-To use a Littlstar Application Token to make File Upload requests, you can either instantiate a `LittlstarApiClient` object using `new LittlstarApiClient("APPLICATION_TOKEN")` or set it using `apiClient.setApplicationToken("APPLICATION_TOKEN")`.
+To use a Littlstar Application Token to make file upload requests, you can either instantiate a `LittlstarApiClient` object using `new LittlstarApiClient("APPLICATION_TOKEN")` or set it using `apiClient.setApplicationToken("APPLICATION_TOKEN")`.
 
 To be able to access private (user-specific) API endpoints (for example the upload endpoints), you need to authenticate the `LittlstarApiClient` first by logging in.
 
@@ -84,7 +83,8 @@ To actually execute the upload, the API Client needs to perform a file upload to
 #### Updating a running file upload's data
 While an upload is in progress, you can update the file's information (e.g. title, description and visibility) with incremental updates using the following call:
 
-    UpdateUploadData updateData = new UpdateUploadData("NEW_TITLE", null, null, false, null); //this only updates the file title and visibility, description and other fields are retained
+	//this only updates the file title and visibility, description and other fields are retained
+    UpdateUploadData updateData = new UpdateUploadData("NEW_TITLE", null, null, false, null);
     apiClient.updateFileUpload(createUploadResponse.getData().getId(), updateData);
 
 Please note that from the moment that the Littlstar API has been notified about the file upload being finished (which is automatically done by the `uploadFileToS3` call), updating the file information won't be possible anymore using this call.
